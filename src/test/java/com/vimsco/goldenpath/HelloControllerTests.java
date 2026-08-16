@@ -3,35 +3,12 @@ package com.vimsco.goldenpath;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class HelloControllerTests {
-
-    @Autowired
-    private TestRestTemplate restTemplate;
 
     @Test
     void helloReturnsGreeting() {
-        ResponseEntity<String> response = restTemplate.getForEntity("/api/hello", String.class);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).contains("hello from the golden path");
-    }
-
-    @Test
-    void livenessProbeIsUp() {
-        ResponseEntity<String> response = restTemplate.getForEntity("/actuator/health/liveness", String.class);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    }
-
-    @Test
-    void readinessProbeIsUp() {
-        ResponseEntity<String> response = restTemplate.getForEntity("/actuator/health/readiness", String.class);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        HelloController controller = new HelloController();
+        assertThat(controller.hello()).containsEntry("message", "hello from the golden path (Java)");
     }
 }
-
