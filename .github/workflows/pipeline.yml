@@ -1,0 +1,35 @@
+# service-template-java/.github/workflows/pipeline.yml
+#
+# Single pipeline: CI (guardrails + build/test, via reusable-ci-java.yml) then
+# CD (build, push, deploy, via reusable-cd.yml). Deploy only runs after CI
+# succeeds on a push to main — PRs run CI only, never deploy.
+#
+# NOTE: pinned to @main while platform-org is actively iterating; will move
+# to @v1 once stable — see the versioning trade-off in the architecture doc.
+
+name: CI/CD Pipeline
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  ci:
+    uses: vimsco-devops/platform-org/.github/workflows/reusable-ci-java.yml@main
+
+  deploy:
+    needs: ci
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      id-token: write
+      contents: read
+    uses: vimsco-devops/platform-org/.github/workflows/reusable-cd.yml@main
+    with:
+      environment: dev
+      acr-name: goldenpathacr
+      image-name: ${{ github.event.repository.name }}
+      container-app-name: ca-${{ github.event.repository.name }}-dev
+      resource-group: rg-goldenpath-dev
+
